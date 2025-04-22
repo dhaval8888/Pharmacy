@@ -5,8 +5,9 @@ import User from "../model/user.model.js";
 // Add item to cart
 export const addToCart = async (req, res) => {
   try {
-    const { user_id, medicine_id, quantity } = req.body;
-
+    const { medicine_id, quantity } = req.body;
+    // console.log(req)
+    const user_id=req.user._id;
     const user = await User.findById(user_id);
     const medicine = await Medicine.findById(medicine_id);
 
@@ -15,7 +16,7 @@ export const addToCart = async (req, res) => {
     }   
 
     let cartItem = await Cart.findOne({ user_id, medicine_id });
-
+    // console.log(cartItem)
     if (cartItem) {
       cartItem.quantity += quantity;
       await cartItem.save();
@@ -33,11 +34,9 @@ export const addToCart = async (req, res) => {
 // Get all cart items for a user
 export const getUserCart = async (req, res) => {
   try {
-
-    const { user_id } = req.params;
-
-    const cartItems = await Cart.find({ user_id }).populate("medicine_id");
-
+    const user_id = req.user._id;
+    const cartItems = await Cart.find({user_id}).populate("medicine_id");
+    console.log(cartItems)
     if (!cartItems.length) {
       return res.status(200).json({ message: "Cart is empty", cart: [] });
     }
@@ -50,7 +49,7 @@ export const getUserCart = async (req, res) => {
       quantity: item.quantity,
       total_price: item.quantity * item.medicine_id.price,
     }));
-
+    console.log(formattedCart)
     res.status(200).json({ cart: formattedCart });
   } catch (error) {
     console.error("Error fetching cart:", error);
@@ -84,7 +83,6 @@ export const updateCartItem = async (req, res) => {
 export const removeFromCart = async (req, res) => {
   try {
     const { cart_id } = req.params;
-
     const deleted = await Cart.findByIdAndDelete(cart_id);
 
     if (!deleted) {

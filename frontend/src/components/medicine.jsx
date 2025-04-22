@@ -38,11 +38,12 @@ export default function MedicinePage() {
     setSelectedMedicine(medicine)
   }
 
-  const handleOrderSubmit = async () => {
+  const handleOrderSubmit = async (req,res) => {
     try {
       const totalAmount = Number(selectedMedicine.price) * quantity
-      const res= await axios.post("http://localhost:4004/order/create", {
-        // user: User._id,
+      console.log(req);
+      const response= await axios.post("http://localhost:4004/order/create", {
+        // user: req.user._id,
         medicines: [
           {
             medicine: selectedMedicine._id,
@@ -54,9 +55,9 @@ export default function MedicinePage() {
       },{
         withCredentials:true, 
       })
-      console.log(res.data)
+      console.log(response.data)
       alert("Order placed successfully")
-    //   setSelectedMedicine()
+    //   setSelectedMedicine(response.data)
     } catch (err) {
       console.error("Order failed", err)
     }
@@ -65,9 +66,10 @@ export default function MedicinePage() {
   const handleAddToCart = async (medicineId) => {
     try {
       await axios.post("http://localhost:4004/cart/add", {
-        user_id: "replace-with-user-id",
         medicine_id: medicineId,
         quantity: 1
+      },{
+        withCredentials:true,
       })
       alert("Added to cart")
     } catch (err) {

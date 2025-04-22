@@ -6,6 +6,7 @@ export default function MyOrders() {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      
       try {
         const res = await axios.get("http://localhost:4004/order/fetch", {
           withCredentials: true,

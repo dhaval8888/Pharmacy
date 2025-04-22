@@ -6,8 +6,8 @@ import User from "../model/user.model.js";
 // Create a new order
 export const createOrder = async (req, res) => {
   try {
-    const { user, medicines, shippingAddress } = req.body;
-
+    const { medicines, shippingAddress } = req.body;
+    const userId=req.user._id;
     // Calculate totalAmount
     let totalAmount = 0;
     for (let item of medicines) {
@@ -19,7 +19,7 @@ export const createOrder = async (req, res) => {
     }
 
     const order = new Order({
-      user,
+      user:userId,
       medicines,
       totalAmount,
       shippingAddress,
@@ -36,7 +36,7 @@ export const createOrder = async (req, res) => {
 // Get all orders
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
+    const orders = await Order.find({user:req.user._id})
       .populate("user", "username email")
       .populate("medicines.medicine");
     res.status(200).json(orders);

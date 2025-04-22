@@ -1,8 +1,37 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 
 export default function Navbar() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if token exists in localStorage
+    const token = localStorage.getItem("jwt");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:4004/user/logout", {
+        method: "GET",
+        credentials: "include", // if you're using cookies
+      });
+
+      // Clear localStorage or token
+      localStorage.removeItem("jwt");
+
+      // Update state
+      setIsLoggedIn(false);
+
+      // Redirect to home or login page
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <nav className="flex items-center justify-between bg-white shadow-md px-8 py-4 sticky top-0 z-50">
       <div className="text-2xl font-bold text-purple-600">
@@ -28,11 +57,20 @@ export default function Navbar() {
           </Link>
         </li>
         <li>
-          <Link to="/login">
-            <button className="bg-gradient-to-r from-purple-400 to-purple-600 text-white px-4 py-2 rounded-md shadow hover:from-purple-500 hover:to-purple-700 transition">
-              Login
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow transition"
+            >
+              Logout
             </button>
-          </Link>
+          ) : (
+            <Link to="/login">
+              <button className="bg-gradient-to-r from-purple-400 to-purple-600 text-white px-4 py-2 rounded-md shadow hover:from-purple-500 hover:to-purple-700 transition">
+                Login
+              </button>
+            </Link>
+          )}
         </li>
       </ul>
     </nav>
